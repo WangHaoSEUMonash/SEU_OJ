@@ -1,57 +1,56 @@
 #include<cstdio>
 #include<algorithm>
 using namespace std;
-int n,m,ans;
-struct node
+
+const int MAXV = 501;
+const int INF = 100000000;
+
+int G[MAXV][MAXV];
+
+int prim(int n)
 {
-	int f,t,d;
-}a[200005];//存边，Kruskal不用建图
-bool cmp(node x,node y){return x.d<y.d;}
-struct bin
-{
-	int w[5005];
-	int find(int x)
-	{
-   		if(x==w[x]) return x;
-	    w[x]=find(w[x]);
-   		return w[x];
-	}
-	void add(int x,int y)
-	{
-    	w[find(x)]=find(y);
-   		return ;
-	}
-	bool ask(int x,int y)
-	{
-   		if(find(x)==find(y)) return true;
-    	else return false;
-	}
-}b;//并查集
+    int d[MAXV];
+    bool vis[MAXV] = {false};
+    fill(d, d + MAXV, INF);
+    d[0] = 0;
+    int ans = 0;
+    for(int i = 0; i < n; i++)
+    {
+        int u = -1, MIN = INF;
+        for(int j = 0; j < n; j++)
+            if(vis[j] == false && d[j] < MIN)
+            {
+                u = j;
+                MIN = d[j];
+            }
+        if(u == -1) return -1;
+        vis[u] = true;
+        ans += d[u];
+        for(int v = 0; v < n; v++)
+            if(vis[v] == false && G[u][v] != INF && G[u][v] < d[v])
+                d[v] = G[u][v];
+    }
+    return ans;
+}
+
 int main()
 {
-    int M;
-    scanf("%d", &M);
-    for(int ab = 0; ab < M; ab++)
+    int T;
+    int n, m;
+    scanf("%d", &T);
+    for(int e = 0; e < T; e++)
     {
-    ans = 0;
-	scanf("%d%d",&n,&m);
-	for(int i=1;i<=m;i++) scanf("%d%d%d",&a[i].f,&a[i].t,&a[i].d);
-	for(int i=1;i<=n;i++) b.w[i]=i;//并查集初始化
-	sort(a+1,a+m+1,cmp);//按边权排序
-	for(int i=1;i<=m;i++)//枚举每条边
-	{
-		if(b.ask(a[i].f,a[i].t)) continue;//连通则跳过
-		ans+=a[i].d;//否则记录
-		b.add(a[i].f,a[i].t);//改为连通
-	}
-	for(int i=2;i<=n;i++)
-		if(!b.ask(1,n))
-		{
-			printf("-1\n");
-			break;
-		}//判断是否连通
-    if(b.ask(1,n))
-        printf("%d\n",ans);
+        int u, v, w;
+        scanf("%d%d", &n, &m);
+        fill(G[0], G[0] + MAXV * MAXV, INF);
+        for(int i = 0; i < m; i++)
+        {
+            scanf("%d%d%d", &u, &v, &w);
+            if(G[u-1][v-1] > w) G[u-1][v-1] = w;
+            if(G[v-1][u-1] > w) G[v-1][u-1] = w;
+        }
+        int ans = prim(n);
+        printf("%d\n", ans);
     }
-	return 0;
+    return 0;
 }
